@@ -6,15 +6,17 @@ provider "aws" {
   region = var.aws_region
 }
 
+provider "github" {
+  version      = "2.4.0" # Personal account webhooks broken in 2.5
+  token        = var.github_token
+  organization = var.github_user
+}
+
 variable "aws_region" {
   type = string
 }
 
 variable "application_name" {
-  type = string
-}
-
-variable "github_oauth_token" {
   type = string
 }
 
@@ -30,10 +32,85 @@ variable "github_branch" {
   type = string
 }
 
-# resource "aws_codepipeline" "codepipeline" {
-#   name     = var.application_name
-#   role_arn = aws_iam_role.codepipeline_role.arn
-# }
+variable "github_token" {
+  type = string
+}
+
+resource "aws_codepipeline" "codepipeline" {
+  name     = var.application_name
+  role_arn = aws_iam_role.codepipeline_role.arn
+
+  artifact_store {
+    location = aws_s3_bucket.artifact_s3_bucket.bucket
+    type     = "S3"
+  }
+
+  stage {
+    name = "Source"
+
+    action {
+      name             = "Source"
+      category         = "Source"
+      owner            = "ThirdParty"
+      provider         = "GitHub"
+      version          = "1"
+      output_artifacts = [format("output_%s", var.application_name)]
+
+      configuration = {
+        Owner      = var.github_user
+        Repo       = var.github_repository
+        Branch     = var.github_branch
+        OAuthToken = var.github_token
+      }
+    }
+  }
+
+  stage {
+    name = "Build"
+
+    action {
+      name            = "Build"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      input_artifacts = [format("output_%s", var.application_name)]
+      version         = "1"
+
+      configuration = {
+        ProjectName = var.application_name
+      }
+    }
+  }
+}
+
+resource "aws_codepipeline_webhook" "codepipeline_webhook" {
+  name            = format("github-webhook-%s", var.application_name)
+  authentication  = "GITHUB_HMAC"
+  target_action   = "Source"
+  target_pipeline = aws_codepipeline.codepipeline.name
+
+  authentication_configuration {
+    secret_token = var.github_token
+  }
+
+  filter {
+    json_path    = "$.ref"
+    match_equals = "refs/heads/{Branch}"
+  }
+}
+
+resource "github_repository_webhook" "github_webhook" {
+  repository = var.github_repository
+
+  configuration {
+    url          = aws_codepipeline_webhook.codepipeline_webhook.url
+    content_type = "json"
+    insecure_ssl = false
+    secret       = var.github_token
+  }
+
+  events = ["push"]
+}
 
 resource "aws_iam_role" "codepipeline_role" {
   name = format("codepipeline-role-%s", var.application_name)
