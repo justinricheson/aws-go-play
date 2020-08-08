@@ -112,6 +112,33 @@ resource "github_repository_webhook" "github_webhook" {
   events = ["push"]
 }
 
+resource "aws_codebuild_project" "codebuild_project" {
+  name          = format("%s-project", var.application_name)
+  build_timeout = "5"
+  service_role  = aws_iam_role.codebuild_role.arn
+
+  source {
+    type = "CODEPIPELINE"
+  }
+
+  environment {
+    compute_type                = "BUILD_GENERAL1_SMALL"
+    image                       = "aws/codebuild/standard:1.0"
+    type                        = "LINUX_CONTAINER"
+    image_pull_credentials_type = "CODEBUILD"
+
+    environment_variable {
+      name  = "ARTIFACT_S3_BUCKET"
+      value = aws_s3_bucket.artifact_s3_bucket.bucket
+    }
+  }
+
+  artifacts {
+    name = var.application_name
+    type = "CODEPIPELINE"
+  }
+}
+
 resource "aws_iam_role" "codepipeline_role" {
   name = format("codepipeline-role-%s", var.application_name)
 
@@ -142,7 +169,7 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
     {
       "Effect": "Allow",
       "Action": [ "s3:GetBucketVersioning" ],
-      "Resource": [ "arn:aws:s3:::${aws_s3_bucket.artifact_s3_bucket.arn}" ]
+      "Resource": [ "${aws_s3_bucket.artifact_s3_bucket.arn}" ]
     },
     {
       "Effect":"Allow",
@@ -151,7 +178,7 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
         "s3:GetObjectVersion",
         "s3:PutObject"
       ],
-      "Resource": [ "arn:aws:s3:::${aws_s3_bucket.artifact_s3_bucket.arn}/*" ]
+      "Resource": [ "${aws_s3_bucket.artifact_s3_bucket.arn}/*" ]
     },
     {
       "Effect": "Allow",
@@ -175,23 +202,6 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
     {
         "Effect": "Allow",
         "Action": [
-            "cloudformation:CreateStack",
-            "cloudformation:DeleteStack",
-            "cloudformation:DescribeStacks",
-            "cloudformation:UpdateStack",
-            "cloudformation:CreateChangeSet",
-            "cloudformation:DeleteChangeSet",
-            "cloudformation:DescribeChangeSet",
-            "cloudformation:ExecuteChangeSet",
-            "cloudformation:SetStackPolicy",
-            "cloudformation:ValidateTemplate",
-            "iam:PassRole"
-        ],
-        "Resource": "*"
-    },
-    {
-        "Effect": "Allow",
-        "Action": [
             "codebuild:BatchGetBuilds",
             "codebuild:StartBuild"
         ],
@@ -202,7 +212,26 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
 EOF
 }
 
+resource "aws_iam_role" "codebuild_role" {
+  name = format("codebuild-role-%s", var.application_name)
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "codebuild.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
 resource "aws_s3_bucket" "artifact_s3_bucket" {
-  bucket = format("artifact-s3-bucket-%s", var.application_name)
+  bucket = "ci-artifact-s3-bucket"
   acl    = "private"
 }
