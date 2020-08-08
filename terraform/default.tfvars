@@ -1,0 +1,5 @@
+aws_region = "us-east-1"
+application_name = "go-play"
+github_user = "justinricheson"
+github_repository = "aws-go-play"
+github_branch = "master"
