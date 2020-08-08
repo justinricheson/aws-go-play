@@ -77,7 +77,7 @@ resource "aws_codepipeline" "codepipeline" {
       version         = "1"
 
       configuration = {
-        ProjectName = var.application_name
+        ProjectName = aws_codebuild_project.codebuild_project.name
       }
     }
   }
