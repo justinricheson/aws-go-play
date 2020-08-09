@@ -1,5 +1,5 @@
 aws_region = "us-east-1"
-application_name = "bootstrap"
+application_name = "aws-go-play"
 github_user = "justinricheson"
 github_repository = "aws-go-play"
 github_branch = "master"
