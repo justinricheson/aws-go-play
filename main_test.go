@@ -4,6 +4,6 @@ import (
 	"testing"
 )
 
-func TestMain(t *testing.T) {
-	main()
+func TestHandleRequest(t *testing.T) {
+	HandleRequest(nil, MyEvent{Name: "test"})
 }

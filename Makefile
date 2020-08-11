@@ -3,7 +3,7 @@ BUILD_DIR := $(ROOT_DIR)/build
 TOOLS_DIR := $(BUILD_DIR)/tools
 COVERAGE_DIR := $(BUILD_DIR)/coverage
 
-.PHONY: build build-stripped clean coverage format format-check lint package
+.PHONY: build build-stripped clean coverage format format-check lint test tidy
 
 build:
 	@echo "--> building project"
@@ -39,9 +39,10 @@ lint:
 	GOBIN=$(TOOLS_DIR) go install github.com/golangci/golangci-lint/cmd/golangci-lint
 	$(TOOLS_DIR)/golangci-lint run -v
 
-package: build
-	@echo "--> packaging project"
-
 test:
 	@echo "--> running unit tests"
 	go test ./...
+
+tidy:
+	@echo "--> tidying project"
+	go mod tidy
