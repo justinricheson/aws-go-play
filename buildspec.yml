@@ -4,9 +4,13 @@ phases:
   install:
     runtime-versions:
       golang: latest
+  pre_build:
+    commands:
+      - make format-check
+      - make lint
   build:
     commands:
-      - go build -o app
+      make build-stripped
 
 artifacts:
   files:
