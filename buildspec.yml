@@ -1,0 +1,11 @@
+version: 0.1
+            
+phases:
+  build:
+    commands:
+      - go build -o app
+
+artifacts:
+  files:
+    - app
+    - buildspec.yml
