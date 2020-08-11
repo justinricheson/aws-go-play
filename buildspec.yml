@@ -1,6 +1,9 @@
 version: 0.1
-            
+
 phases:
+  install:
+    runtime-versions:
+      golang: latest
   build:
     commands:
       - go build -o app
