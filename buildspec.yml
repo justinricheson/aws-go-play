@@ -10,9 +10,12 @@ phases:
       - make lint
   build:
     commands:
-      make build-stripped
+      - make build-stripped
+      - rm buildspec.yml
+      - mv terraform/stack/buildspec.yml .
 
 artifacts:
   files:
     - app
+    - terraform/stack/**/*
     - buildspec.yml
