@@ -11,8 +11,6 @@ phases:
   build:
     commands:
       - make build-stripped
-      - echo Listing Root
-      - ls -R
       - rm buildspec.yml
       - mv terraform/buildspec.yml .
 
