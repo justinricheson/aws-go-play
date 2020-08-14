@@ -13,11 +13,11 @@ phases:
       - make build-stripped
       - echo Listing Root
       - ls -R
-      #- rm buildspec.yml
-      #- mv terraform/stack/buildspec.yml .
+      - rm buildspec.yml
+      - mv terraform/buildspec.yml .
 
 artifacts:
   files:
     - build/app
-    #- terraform/stack/**/*
-    #- buildspec.yml
+    - terraform/stack/**/*
+    - buildspec.yml
