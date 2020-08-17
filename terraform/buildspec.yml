@@ -12,7 +12,7 @@ phases:
 
   pre_build:
     commands:
-      - AWS_CREDS=`aws sts assume-role --role-arn $${TERRAFORM_ROLE}`
+      - AWS_CREDS=`aws sts assume-role --role-arn $${TERRAFORM_ROLE} --role-session-name codebuild`
       - export AWS_ACCESS_KEY_ID=`echo "$${AWS_CREDS}" | jq -r '.Credentials.AccessKeyId'`
       - export AWS_SECRET_ACCESS_KEY=`echo "$${AWS_CREDS}" | jq -r '.Credentials.SecretAccessKey'`
       - export AWS_SESSION_TOKEN=`echo "$${AWS_CREDS}" | jq -r '.Credentials.SessionToken'`
