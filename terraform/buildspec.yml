@@ -5,7 +5,7 @@ phases:
     runtime-versions:
       golang: latest
     commands:
-      - sudo yum install git -y
+      - yum install git -y
       - git clone https://github.com/elasticbyte/hashipm.git
       - \"$PWD\"/hashipm/hashipm.bash get terraform
 
