@@ -15,8 +15,3 @@ provider "aws" {
 variable "aws_region" {
   type = string
 }
-
-resource "aws_s3_bucket" "tmp_bucket" {
-  bucket = "tmp-bucket-790055257995"
-  acl    = "private"
-}
