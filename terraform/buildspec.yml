@@ -6,7 +6,9 @@ phases:
       golang: latest
     commands:
       - git clone https://github.com/elasticbyte/hashipm.git
-      - hashipm/hashipm.bash get terraform
+      - ln -s $PWD/hashipm/hashipm.bash /usr/local/bin/hashipm
+      - export HASHIPM_ROOT=$PWD/hashipm
+      - hashipm get terraform
 
   pre_build:
     commands:
