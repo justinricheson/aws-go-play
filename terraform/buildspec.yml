@@ -3,21 +3,19 @@ version: 0.2
 phases:
   install:
     commands:
-      #- sudo yum install git -y
-      #- git clone https://github.com/elasticbyte/hashipm.git
-      #- "$PWD"/hashipm/hashipm.bash get terraform
+      - sudo yum install git -y
+      - git clone https://github.com/elasticbyte/hashipm.git
+      - "$PWD"/hashipm/hashipm.bash get terraform
 
   pre_build:
     commands:
-      #- AWS_CREDS=`aws sts assume-role --role-arn $${TERRAFORM_ROLE}`
-      #- export AWS_ACCESS_KEY_ID=`echo "$${AWS_CREDS}" | jq -r '.Credentials.AccessKeyId'`
-      #- export AWS_SECRET_ACCESS_KEY=`echo "$${AWS_CREDS}" | jq -r '.Credentials.SecretAccessKey'`
-      #- export AWS_SESSION_TOKEN=`echo "$${AWS_CREDS}" | jq -r '.Credentials.SessionToken'`
-      #- export TF_IN_AUTOMATION=1
+      - AWS_CREDS=`aws sts assume-role --role-arn $${TERRAFORM_ROLE}`
+      - export AWS_ACCESS_KEY_ID=`echo "$${AWS_CREDS}" | jq -r '.Credentials.AccessKeyId'`
+      - export AWS_SECRET_ACCESS_KEY=`echo "$${AWS_CREDS}" | jq -r '.Credentials.SecretAccessKey'`
+      - export AWS_SESSION_TOKEN=`echo "$${AWS_CREDS}" | jq -r '.Credentials.SessionToken'`
+      - export TF_IN_AUTOMATION=1
   build:
     commands:
-      - echo Listing Root
-      - ls -R
-      #- cd terraform/stack
-      #- terraform init -input=false
-      #- terraform apply -input=false -var-file="$(pwd)/stack.tfvars"
+      - cd terraform/stack
+      - terraform init -input=false
+      - terraform apply -input=false -var-file="$(pwd)/stack.tfvars"
